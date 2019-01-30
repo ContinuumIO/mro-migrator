@@ -1,0 +1,8 @@
+---
+exclude_paths:
+  - 'mro_migrator/_version.py'
+  - 'tests/**/*'
+  - 'tests/*'
+  - 'benchmarks/**/*'
+  - 'setup.py'
+  - 'versioneer.py'

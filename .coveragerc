@@ -1,0 +1,7 @@
+[report]
+omit =
+    setup.py
+    mro_migrator/__main__.py
+    mro_migrator/_version.py
+    versioneer.py
+    tests/*
