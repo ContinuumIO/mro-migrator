@@ -52,14 +52,19 @@ if sys.platform == 'win32':
     mro_only_packages.extend(['r-rmysql', 'r-sf'])
 
 
-def cli():
+def parse_args(args):
     parser = ArgumentParser(description="Tool to migrate MRO environments to use Anaconda R")
     parser.add_argument("env_path")
-    args = parser.parse_args()
+    parser.add_argument("--execute",
+                        action="store_true",
+                        help="carry out the migration, rather than just saying what will happen")
+    return parser.parse_args()
 
+
+def main(env_path, execute=False):
     tmpdir = tempfile.gettempdir()
     out_file = os.path.join(tmpdir, 'dumped_env.yml')
-    get_env_specs(args.env_path, out_file)
+    get_env_specs(env_path, out_file)
     with open(out_file) as f:
         env_specs = yaml.load(f)
 
@@ -72,11 +77,25 @@ def cli():
         elif build_string.startswith('mro'):
             removals.append(name)
             additions.append(name)
-    remove_pkgs(args.env_path, removals)
-    install_pkgs(args.env_path, additions)
 
-    print("The following packages are not available with Anaconda R and have been removed:")
-    pprint.pprint(set(removals) - set(additions))
+    removed_pkgs = set(removals) - set(additions)
+
+    if execute:
+        remove_pkgs(env_path, removals)
+        install_pkgs(env_path, additions)
+        print("The following packages are not available with Anaconda R and have been removed:")
+        pprint.pprint(removed_pkgs)
+    else:
+        print("The following packages are not available with Anaconda R and will be removed "
+              "if you run with the --execute flag:")
+        pprint.pprint(removed_pkgs)
+    return removed_pkgs
+
+
+def cli():
+    import sys
+    args = parse_args(sys.argv[1:])
+    main(args.env_path, args.execute)
 
 
 if __name__ == "__main__":
