@@ -70,6 +70,7 @@ def main(env_path, execute=False):
 
     additions = ['r-base']
     removals = []
+    env_path = os.path.expanduser(env_path)
     for spec in env_specs['dependencies']:
         name, version, build_string = spec.split('=')
         if any(fnmatch(name, pattern) for pattern in mro_only_packages):
